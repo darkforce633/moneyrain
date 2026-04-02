@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>MONEY RAIN</title>
+<title>MONEY — Pencatat Keuangan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet"/>
 <style>
@@ -459,7 +459,7 @@
   </div>
 
   <div class="setup-banner" id="setup-banner">
-<p>Paste <strong>Apps Script URL</strong> lo di sini biar langsung nyambung ke Google Sheets. <a href="#" onclick="return false">Cara setup →</a></p>
+    <p>Paste <strong>Apps Script URL</strong> lo di sini biar langsung nyambung ke Google Sheets. <a href="#" onclick="return false">Cara setup →</a></p>
     <input type="url" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" />
     <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
       <button class="save-url-btn" onclick="saveScriptUrl()">Simpan URL</button>
@@ -468,7 +468,7 @@
   </div>
 
   <div class="form-card">
-    <div class="form-title">Pilih Transaksi</div>
+    <div class="form-title">Tambah transaksi</div>
 
     <div class="type-toggle">
       <button class="type-btn active-in" id="btn-in" onclick="setType('in')">+ Pemasukkan</button>
@@ -486,7 +486,7 @@
       </div>
       <div class="field full">
         <label>Keterangan</label>
-        <textarea id="inp-ket" placeholder="Uangnya dipakai buat apa..."></textarea>
+        <textarea id="inp-ket" placeholder="Gaji, makan siang, bensin..."></textarea>
       </div>
     </div>
 
@@ -512,10 +512,7 @@
 </div>
 
 <script>
-  const BASE_BALANCE = 107103.97;
   let currentType = 'in';
-  let entries = [];
-  let totalIn = 0, totalOut = 0;
   let scriptUrl = localStorage.getItem('money_script_url') || '';
 
   const now = new Date();
@@ -529,6 +526,7 @@
     document.getElementById('script-url-input').value = scriptUrl;
     document.getElementById('url-status').textContent = 'URL tersimpan';
     document.getElementById('setup-banner').style.borderColor = 'rgba(61,214,140,0.25)';
+    fetchFromSheets();
   }
 
   function saveScriptUrl() {
@@ -539,9 +537,9 @@
     }
     scriptUrl = val;
     localStorage.setItem('money_script_url', val);
-    document.getElementById('url-status').textContent = 'Tersimpan!';
+    document.getElementById('url-status').textContent = 'Tersimpan! Mengambil data...';
     document.getElementById('setup-banner').style.borderColor = 'rgba(61,214,140,0.25)';
-    setTimeout(() => document.getElementById('url-status').textContent = '', 2500);
+    fetchFromSheets();
   }
 
   function fmt(n) {
@@ -561,7 +559,7 @@
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.className = 'toast ' + type + ' show';
-    setTimeout(() => t.className = 'toast ' + type, 2500);
+    setTimeout(() => t.className = 'toast ' + type, 2800);
   }
 
   function animateVal(el) {
@@ -570,10 +568,66 @@
     el.classList.add('popped');
   }
 
+  function updateUI(data) {
+    const inEl  = document.getElementById('total-in');
+    const outEl = document.getElementById('total-out');
+    const selEl = document.getElementById('total-selisih');
+    const balEl = document.getElementById('total-balance');
+    const balSub = document.querySelector('.balance-row div div:last-child');
+
+    const sel = data.selisih;
+    inEl.textContent  = fmt(data.totalKredit);
+    outEl.textContent = fmt(data.totalDebit);
+    selEl.textContent = fmt(Math.abs(sel));
+    selEl.className   = 'sum-val ' + (sel >= 0 ? 'pos-sel' : 'neg-sel');
+    balEl.textContent = fmt(data.balance);
+    if (balSub) balSub.textContent = fmt(data.balance - data.selisih) + ' + transaksi bulan ini';
+
+    animateVal(inEl); animateVal(outEl); animateVal(selEl); animateVal(balEl);
+
+    const logEl = document.getElementById('log-list');
+    document.getElementById('log-count').textContent = data.entries.length + ' entri';
+    if (!data.entries.length) {
+      logEl.innerHTML = '<div class="log-empty">Belum ada transaksi di Sheets bulan ini.</div>';
+      return;
+    }
+    logEl.innerHTML = data.entries.slice().reverse().slice(0, 30).map(e => {
+      const tipe = e.kredit > 0 ? 'in' : 'out';
+      const nominal = e.kredit > 0 ? e.kredit : e.debit;
+      return `
+        <div class="log-item">
+          <div class="log-left">
+            <span class="log-desc">${e.keterangan || '-'}</span>
+            <span class="log-meta">
+              <span class="log-type-dot ${tipe === 'in' ? 'dot-in' : 'dot-out'}"></span>
+              ${e.tanggal} &nbsp;·&nbsp; ${tipe === 'in' ? 'Kredit' : 'Debit'}
+            </span>
+          </div>
+          <span class="log-amt ${tipe === 'in' ? 'pos' : 'neg'}">
+            ${tipe === 'in' ? '+' : '−'}${fmt(nominal)}
+          </span>
+        </div>`;
+    }).join('');
+  }
+
+  async function fetchFromSheets() {
+    if (!scriptUrl) return;
+    try {
+      document.getElementById('url-status').textContent = 'Sinkronisasi...';
+      const res = await fetch(scriptUrl, { cache: 'no-store' });
+      const data = await res.json();
+      updateUI(data);
+      document.getElementById('url-status').textContent = 'Tersinkron ✓';
+      setTimeout(() => document.getElementById('url-status').textContent = '', 3000);
+    } catch(e) {
+      document.getElementById('url-status').textContent = 'Gagal sync';
+    }
+  }
+
   async function submitEntry() {
-    const date = document.getElementById('inp-date').value;
+    const date    = document.getElementById('inp-date').value;
     const nominal = parseFloat(document.getElementById('inp-nominal').value);
-    const ket = document.getElementById('inp-ket').value.trim();
+    const ket     = document.getElementById('inp-ket').value.trim();
 
     if (!date || !nominal || nominal <= 0) {
       showToast('Isi tanggal & nominal dulu!', 'error');
@@ -594,63 +648,22 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        showToast('Berhasil dikirim ke Google Sheets!', 'success');
+        showToast('Terkirim! Menyinkronkan data...', 'success');
+        // tunggu sebentar baru fetch biar Sheets sempat update
+        await new Promise(r => setTimeout(r, 1500));
+        await fetchFromSheets();
       } catch (e) {
         showToast('Gagal kirim — cek URL atau koneksi', 'error');
       }
     } else {
       await new Promise(r => setTimeout(r, 400));
-      showToast('Tersimpan (mode demo — setup URL dulu)', 'success');
+      showToast('Mode demo — setup URL Apps Script dulu ya!', 'error');
     }
-
-    if (currentType === 'in') totalIn += nominal;
-    else totalOut += nominal;
-
-    const selisih = totalIn - totalOut;
-    const balance = BASE_BALANCE + selisih;
-
-    const inEl = document.getElementById('total-in');
-    const outEl = document.getElementById('total-out');
-    const selEl = document.getElementById('total-selisih');
-    const balEl = document.getElementById('total-balance');
-
-    inEl.textContent = fmt(totalIn);
-    outEl.textContent = fmt(totalOut);
-    selEl.textContent = fmt(Math.abs(selisih));
-    selEl.className = 'sum-val ' + (selisih >= 0 ? 'pos-sel' : 'neg-sel');
-    balEl.textContent = fmt(balance);
-
-    animateVal(inEl); animateVal(outEl); animateVal(selEl); animateVal(balEl);
-
-    entries.unshift({ date, nominal, ket: ket || '-', tipe: currentType });
-    renderLog();
 
     document.getElementById('inp-nominal').value = '';
     document.getElementById('inp-ket').value = '';
     btn.disabled = false;
     setType(currentType);
-  }
-
-  function renderLog() {
-    const el = document.getElementById('log-list');
-    document.getElementById('log-count').textContent = entries.length + ' entri';
-    if (!entries.length) {
-      el.innerHTML = '<div class="log-empty">Belum ada transaksi dicatat.</div>';
-      return;
-    }
-    el.innerHTML = entries.slice(0, 20).map(e => `
-      <div class="log-item">
-        <div class="log-left">
-          <span class="log-desc">${e.ket}</span>
-          <span class="log-meta">
-            <span class="log-type-dot ${e.tipe === 'in' ? 'dot-in' : 'dot-out'}"></span>
-            ${e.date} &nbsp;·&nbsp; ${e.tipe === 'in' ? 'Kredit' : 'Debit'}
-          </span>
-        </div>
-        <span class="log-amt ${e.tipe === 'in' ? 'pos' : 'neg'}">
-          ${e.tipe === 'in' ? '+' : '−'}${fmt(e.nominal)}
-        </span>
-      </div>`).join('');
   }
 </script>
 </body>
