@@ -7,421 +7,117 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --bg: #0e0e0f;
-    --surface: #161618;
-    --surface2: #1e1e21;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #f0ede8;
-    --muted: #6b6a6f;
-    --muted2: #9e9da3;
-    --green: #3dd68c;
-    --green-dim: rgba(61,214,140,0.12);
-    --green-border: rgba(61,214,140,0.25);
-    --red: #f06060;
-    --red-dim: rgba(240,96,96,0.12);
-    --red-border: rgba(240,96,96,0.25);
-    --accent: #c9b8ff;
-    --accent-dim: rgba(201,184,255,0.1);
-    --radius: 12px;
-    --radius-sm: 8px;
-  }
+:root{
+  --bg:#0e0e0f;--surface:#161618;--surface2:#1e1e21;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#f0ede8;--muted:#6b6a6f;--muted2:#9e9da3;
+  --green:#3dd68c;--green-dim:rgba(61,214,140,0.12);--green-border:rgba(61,214,140,0.25);
+  --red:#f06060;--red-dim:rgba(240,96,96,0.12);--red-border:rgba(240,96,96,0.25);
+  --accent:#c9b8ff;--accent-dim:rgba(201,184,255,0.1);
+  --radius:12px;--radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4}
+.container{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:2.5rem 1.25rem 4rem}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* HEADER */
+header{margin-bottom:2rem;animation:fadeUp .5s ease both}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.25rem}
+.logo{font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1}
+.month-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--surface2);border:.5px solid var(--border2);border-radius:20px;padding:4px 10px;margin-top:6px;letter-spacing:.5px}
+.subtitle{font-size:13px;color:var(--muted);font-weight:400;margin-top:2px}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    min-height: 100vh;
-    padding: 0;
-  }
+/* SYNC BAR */
+.sync-bar{display:flex;align-items:center;gap:8px;margin-bottom:1.5rem;animation:fadeUp .5s .04s ease both}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:background .3s}
+.sync-dot.ok{background:var(--green)}
+.sync-dot.err{background:var(--red)}
+.sync-dot.loading{background:var(--accent);animation:pulse 1s infinite}
+.sync-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);flex:1}
+.sync-refresh{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);cursor:pointer;background:none;border:none;padding:0;text-decoration:underline;text-underline-offset:2px}
+.sync-refresh:hover{opacity:.7}
 
-  /* noise overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.4;
-  }
+/* SUMMARY */
+.summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:1rem;animation:fadeUp .5s .08s ease both}
+.sum-card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:14px 14px 12px;transition:border-color .2s}
+.sum-card:hover{border-color:var(--border2)}
+.sum-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sum-val{font-size:17px;font-weight:700;letter-spacing:-.5px;font-variant-numeric:tabular-nums;transition:all .3s}
+.sum-val.green{color:var(--green)}
+.sum-val.red{color:var(--red)}
+.sum-val.pos-sel{color:var(--green)}
+.sum-val.neg-sel{color:var(--red)}
+.sum-val.neutral{color:var(--text)}
 
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 2.5rem 1.25rem 4rem;
-  }
+/* BALANCE */
+.balance-row{margin-bottom:1.5rem;background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s .12s ease both}
+.balance-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase}
+.balance-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px}
+.balance-val{font-size:22px;font-weight:800;letter-spacing:-1px;color:var(--accent);font-variant-numeric:tabular-nums}
 
-  /* HEADER */
-  header {
-    margin-bottom: 2.5rem;
-    animation: fadeUp 0.5s ease both;
-  }
-  .header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 0.25rem;
-  }
-  .logo {
-    font-size: 42px;
-    font-weight: 800;
-    letter-spacing: -2px;
-    line-height: 1;
-    color: var(--text);
-  }
-  .month-badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    background: var(--surface2);
-    border: 0.5px solid var(--border2);
-    border-radius: 20px;
-    padding: 4px 10px;
-    margin-top: 6px;
-    letter-spacing: 0.5px;
-  }
-  .subtitle {
-    font-size: 13px;
-    color: var(--muted);
-    font-weight: 400;
-    margin-top: 2px;
-  }
+/* SETUP BANNER */
+.setup-banner{background:var(--accent-dim);border:.5px solid rgba(201,184,255,.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:1.25rem;animation:fadeUp .5s .14s ease both}
+.setup-banner p{font-size:12px;color:var(--accent);line-height:1.6}
+.setup-banner strong{font-weight:700}
+.setup-input{width:100%;margin-top:10px;background:rgba(201,184,255,.06);border:.5px solid rgba(201,184,255,.2);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;padding:8px 12px;outline:none;transition:border-color .18s}
+.setup-input:focus{border-color:var(--accent)}
+.setup-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.save-btn{background:var(--accent);color:#1a1430;border:none;border-radius:var(--radius-sm);padding:7px 16px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .18s;white-space:nowrap}
+.save-btn:hover{opacity:.85}
+.url-status{font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)}
 
-  /* SUMMARY CARDS */
-  .summary {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    margin-bottom: 1.75rem;
-    animation: fadeUp 0.5s 0.08s ease both;
-  }
-  .sum-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 14px 12px;
-    transition: border-color 0.2s;
-  }
-  .sum-card:hover { border-color: var(--border2); }
-  .sum-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
-  .sum-val {
-    font-size: 18px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    font-variant-numeric: tabular-nums;
-    transition: all 0.3s;
-  }
-  .sum-val.green { color: var(--green); }
-  .sum-val.red { color: var(--red); }
-  .sum-val.neutral { color: var(--text); }
-  .sum-val.pos-sel { color: var(--green); }
-  .sum-val.neg-sel { color: var(--red); }
-  .balance-row {
-    margin-bottom: 1.75rem;
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    animation: fadeUp 0.5s 0.12s ease both;
-  }
-  .balance-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.5px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-  .balance-val {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    color: var(--accent);
-    font-variant-numeric: tabular-nums;
-  }
+/* FORM */
+.form-card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.25rem;animation:fadeUp .5s .16s ease both}
+.form-title{font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:1.25rem}
+.type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1.25rem}
+.type-btn{padding:10px 12px;border-radius:var(--radius-sm);border:.5px solid var(--border2);background:transparent;color:var(--muted2);font-family:'Syne',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .18s}
+.type-btn:hover{background:var(--surface2);color:var(--text)}
+.type-btn.active-in{background:var(--green-dim);border-color:var(--green-border);color:var(--green)}
+.type-btn.active-out{background:var(--red-dim);border-color:var(--red-border);color:var(--red)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+.field input,.field textarea{background:var(--surface2);border:.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'Syne',sans-serif;font-size:14px;padding:10px 12px;outline:none;transition:border-color .18s,background .18s;width:100%}
+.field input:focus,.field textarea:focus{border-color:var(--accent);background:rgba(201,184,255,.05)}
+.field input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.5);cursor:pointer}
+.field textarea{resize:vertical;min-height:60px}
+.toast-wrap{position:relative;height:0;overflow:visible;margin-top:1.25rem}
+.toast{position:absolute;left:0;right:0;top:-52px;font-family:'DM Mono',monospace;font-size:12px;padding:10px 16px;border-radius:var(--radius-sm);text-align:center;opacity:0;transform:translateY(6px);transition:all .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.success{background:var(--green-dim);border:.5px solid var(--green-border);color:var(--green)}
+.toast.error{background:var(--red-dim);border:.5px solid var(--red-border);color:var(--red)}
+.submit-btn{width:100%;padding:13px;border-radius:var(--radius-sm);border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;letter-spacing:.3px;margin-top:1.25rem}
+.submit-btn:active{transform:scale(.985)}
+.submit-btn.in{background:var(--green);color:#0a2218}
+.submit-btn.out{background:var(--red);color:#2a0a0a}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed}
 
-  /* FORM CARD */
-  .form-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    margin-bottom: 1.25rem;
-    animation: fadeUp 0.5s 0.16s ease both;
-  }
-  .form-title {
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 1.25rem;
-  }
+/* LOG */
+.log-card{background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;animation:fadeUp .5s .2s ease both}
+.log-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.log-title-txt{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.log-count{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+.log-empty{font-size:13px;color:var(--muted);text-align:center;padding:24px 0}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:.5px solid var(--border);gap:12px}
+.log-item:last-child{border-bottom:none}
+.log-left{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.log-desc{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
+.log-meta{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.dot{width:5px;height:5px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dot-in{background:var(--green)}
+.dot-out{background:var(--red)}
+.log-amt{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;white-space:nowrap}
+.log-amt.pos{color:var(--green)}
+.log-amt.neg{color:var(--red)}
 
-  /* TYPE TOGGLE */
-  .type-toggle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 1.25rem;
-  }
-  .type-btn {
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border2);
-    background: transparent;
-    color: var(--muted2);
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-  .type-btn:hover { background: var(--surface2); color: var(--text); }
-  .type-btn.active-in {
-    background: var(--green-dim);
-    border-color: var(--green-border);
-    color: var(--green);
-  }
-  .type-btn.active-out {
-    background: var(--red-dim);
-    border-color: var(--red-border);
-    color: var(--red);
-  }
+footer{margin-top:2.5rem;text-align:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.5px;animation:fadeUp .5s .24s ease both}
 
-  /* FIELDS */
-  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .field { display: flex; flex-direction: column; gap: 6px; }
-  .field.full { grid-column: 1 / -1; }
-  .field label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .field input, .field textarea {
-    background: var(--surface2);
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    padding: 10px 12px;
-    outline: none;
-    transition: border-color 0.18s, background 0.18s;
-    width: 100%;
-  }
-  .field input:focus, .field textarea:focus {
-    border-color: var(--accent);
-    background: rgba(201,184,255,0.05);
-  }
-  .field input[type="date"]::-webkit-calendar-picker-indicator {
-    filter: invert(0.5);
-    cursor: pointer;
-  }
-  .field textarea { resize: vertical; min-height: 60px; }
-
-  .submit-area { margin-top: 1.25rem; }
-  .submit-btn {
-    width: 100%;
-    padding: 13px;
-    border-radius: var(--radius-sm);
-    border: none;
-    font-family: 'Syne', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.18s;
-    letter-spacing: 0.3px;
-  }
-  .submit-btn:active { transform: scale(0.985); }
-  .submit-btn.in { background: var(--green); color: #0a2218; }
-  .submit-btn.out { background: var(--red); color: #2a0a0a; }
-  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  /* TOAST */
-  .toast-wrap { position: relative; height: 0; overflow: visible; }
-  .toast {
-    position: absolute;
-    left: 0; right: 0;
-    top: -56px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 10px 16px;
-    border-radius: var(--radius-sm);
-    text-align: center;
-    opacity: 0;
-    transform: translateY(6px);
-    transition: all 0.25s;
-    pointer-events: none;
-  }
-  .toast.show { opacity: 1; transform: translateY(0); }
-  .toast.success { background: var(--green-dim); border: 0.5px solid var(--green-border); color: var(--green); }
-  .toast.error { background: var(--red-dim); border: 0.5px solid var(--red-border); color: var(--red); }
-
-  /* SETUP BANNER */
-  .setup-banner {
-    background: var(--accent-dim);
-    border: 0.5px solid rgba(201,184,255,0.2);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom: 1.25rem;
-    animation: fadeUp 0.5s 0.2s ease both;
-  }
-  .setup-banner p {
-    font-size: 12px;
-    color: var(--accent);
-    font-weight: 400;
-    line-height: 1.6;
-  }
-  .setup-banner a {
-    color: var(--accent);
-    font-weight: 700;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  .setup-banner input {
-    width: 100%;
-    margin-top: 10px;
-    background: rgba(201,184,255,0.06);
-    border: 0.5px solid rgba(201,184,255,0.2);
-    border-radius: var(--radius-sm);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 8px 12px;
-    outline: none;
-    transition: border-color 0.18s;
-  }
-  .setup-banner input:focus { border-color: var(--accent); }
-  .save-url-btn {
-    margin-top: 8px;
-    background: var(--accent);
-    color: #1a1430;
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 7px 16px;
-    font-family: 'Syne', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: opacity 0.18s;
-  }
-  .save-url-btn:hover { opacity: 0.85; }
-
-  /* LOG */
-  .log-card {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.5rem;
-    animation: fadeUp 0.5s 0.24s ease both;
-  }
-  .log-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-  .log-title-txt {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .log-count {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-  }
-  .log-empty {
-    font-size: 13px;
-    color: var(--muted);
-    text-align: center;
-    padding: 24px 0;
-    font-weight: 400;
-  }
-  .log-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 0.5px solid var(--border);
-    gap: 12px;
-  }
-  .log-item:last-child { border-bottom: none; }
-  .log-left { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-  .log-desc {
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    color: var(--text);
-  }
-  .log-meta {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .log-type-dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .dot-in { background: var(--green); }
-  .dot-out { background: var(--red); }
-  .log-amt {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-  .log-amt.pos { color: var(--green); }
-  .log-amt.neg { color: var(--red); }
-
-  /* FOOTER */
-  footer {
-    margin-top: 2.5rem;
-    text-align: center;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-    animation: fadeUp 0.5s 0.28s ease both;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @keyframes pop {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.04); }
-    100% { transform: scale(1); }
-  }
-  .popped { animation: pop 0.25s ease; }
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.popped{animation:pop .25s ease}
 </style>
 </head>
 <body>
@@ -432,49 +128,53 @@
       <div class="logo">MONEY</div>
       <div class="month-badge" id="month-badge">APR 2026</div>
     </div>
-    <p class="subtitle">Pencatat pemasukkan & pengeluaran</p>
+    <p class="subtitle">Pencatat pemasukkan &amp; pengeluaran</p>
   </header>
+
+  <div class="sync-bar">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span class="sync-label" id="sync-label">Belum terhubung ke Google Sheets</span>
+    <button class="sync-refresh" onclick="fetchFromSheets()" id="sync-refresh-btn" style="display:none">↻ Refresh</button>
+  </div>
 
   <div class="summary">
     <div class="sum-card">
       <div class="sum-label">Pemasukkan</div>
-      <div class="sum-val green" id="total-in">0</div>
+      <div class="sum-val green" id="total-in">—</div>
     </div>
     <div class="sum-card">
       <div class="sum-label">Pengeluaran</div>
-      <div class="sum-val red" id="total-out">0</div>
+      <div class="sum-val red" id="total-out">—</div>
     </div>
     <div class="sum-card">
       <div class="sum-label">Selisih bulan ini</div>
-      <div class="sum-val neutral" id="total-selisih">0</div>
+      <div class="sum-val neutral" id="total-selisih">—</div>
     </div>
   </div>
 
   <div class="balance-row">
     <div>
       <div class="balance-label">Bank Balance</div>
-      <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);margin-top:2px">107,103.97 + transaksi baru</div>
+      <div class="balance-sub" id="balance-sub">Langsung dari Google Sheets</div>
     </div>
-    <div class="balance-val" id="total-balance">107,103.97</div>
+    <div class="balance-val" id="total-balance">—</div>
   </div>
 
   <div class="setup-banner" id="setup-banner">
-    <p>Paste <strong>Apps Script URL</strong> lo di sini biar langsung nyambung ke Google Sheets. <a href="#" onclick="return false">Cara setup →</a></p>
-    <input type="url" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" />
-    <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
-      <button class="save-url-btn" onclick="saveScriptUrl()">Simpan URL</button>
-      <span id="url-status" style="font-size:11px;font-family:'DM Mono',monospace;color:var(--muted)"></span>
+    <p><strong>Hubungkan ke Google Sheets</strong> — paste Apps Script URL lo di bawah ini.</p>
+    <input class="setup-input" type="url" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec"/>
+    <div class="setup-row">
+      <button class="save-btn" onclick="saveScriptUrl()">Simpan &amp; Sync</button>
+      <span class="url-status" id="url-status"></span>
     </div>
   </div>
 
   <div class="form-card">
     <div class="form-title">Tambah transaksi</div>
-
     <div class="type-toggle">
       <button class="type-btn active-in" id="btn-in" onclick="setType('in')">+ Pemasukkan</button>
       <button class="type-btn" id="btn-out" onclick="setType('out')">− Pengeluaran</button>
     </div>
-
     <div class="fields">
       <div class="field">
         <label>Tanggal</label>
@@ -489,182 +189,187 @@
         <textarea id="inp-ket" placeholder="Gaji, makan siang, bensin..."></textarea>
       </div>
     </div>
-
     <div class="toast-wrap">
       <div class="toast" id="toast"></div>
     </div>
-    <div class="submit-area">
-      <button class="submit-btn in" id="submit-btn" onclick="submitEntry()">Tambah Pemasukkan</button>
-    </div>
+    <button class="submit-btn in" id="submit-btn" onclick="submitEntry()">Tambah Pemasukkan</button>
   </div>
 
   <div class="log-card">
     <div class="log-header">
       <span class="log-title-txt">Riwayat transaksi</span>
-      <span class="log-count" id="log-count">0 entri</span>
+      <span class="log-count" id="log-count">—</span>
     </div>
-    <div id="log-list">
-      <div class="log-empty">Belum ada transaksi dicatat.</div>
-    </div>
+    <div id="log-list"><div class="log-empty">Hubungkan ke Sheets dulu untuk melihat riwayat.</div></div>
   </div>
 
   <footer>MONEY &mdash; personal finance tracker &mdash; <span id="footer-date"></span></footer>
 </div>
 
 <script>
-  let currentType = 'in';
-  let scriptUrl = localStorage.getItem('money_script_url') || '';
+let currentType = 'in';
+let scriptUrl   = localStorage.getItem('money_script_url') || '';
 
-  const now = new Date();
-  document.getElementById('inp-date').value = now.toISOString().split('T')[0];
-  document.getElementById('month-badge').textContent =
-    now.toLocaleString('id-ID', {month:'short'}).toUpperCase() + ' ' + now.getFullYear();
-  document.getElementById('footer-date').textContent =
-    now.toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'});
+const now = new Date();
+document.getElementById('inp-date').value = now.toISOString().split('T')[0];
+document.getElementById('month-badge').textContent =
+  now.toLocaleString('id-ID',{month:'short'}).toUpperCase() + ' ' + now.getFullYear();
+document.getElementById('footer-date').textContent =
+  now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
 
-  if (scriptUrl) {
-    document.getElementById('script-url-input').value = scriptUrl;
-    document.getElementById('url-status').textContent = 'URL tersimpan';
-    document.getElementById('setup-banner').style.borderColor = 'rgba(61,214,140,0.25)';
+if (scriptUrl) {
+  document.getElementById('script-url-input').value = scriptUrl;
+  document.getElementById('setup-banner').style.borderColor = 'rgba(61,214,140,.25)';
+  document.getElementById('sync-refresh-btn').style.display = '';
+  fetchFromSheets();
+}
+
+function saveScriptUrl() {
+  const val = document.getElementById('script-url-input').value.trim();
+  if (!val.startsWith('https://script.google.com')) {
+    setStatus('URL tidak valid', 'err'); return;
+  }
+  scriptUrl = val;
+  localStorage.setItem('money_script_url', val);
+  document.getElementById('setup-banner').style.borderColor = 'rgba(61,214,140,.25)';
+  document.getElementById('sync-refresh-btn').style.display = '';
+  fetchFromSheets();
+}
+
+function fmt(n) {
+  return new Intl.NumberFormat('id-ID',{minimumFractionDigits:0,maximumFractionDigits:2}).format(n);
+}
+
+function setType(t) {
+  currentType = t;
+  document.getElementById('btn-in').className  = 'type-btn' + (t==='in'  ? ' active-in'  : '');
+  document.getElementById('btn-out').className = 'type-btn' + (t==='out' ? ' active-out' : '');
+  const btn = document.getElementById('submit-btn');
+  btn.className   = 'submit-btn ' + t;
+  btn.textContent = t==='in' ? 'Tambah Pemasukkan' : 'Tambah Pengeluaran';
+}
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.className = 'toast ' + type, 2800);
+}
+
+function animateVal(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('popped');
+  void el.offsetWidth;
+  el.classList.add('popped');
+}
+
+function setSyncState(state, msg) {
+  const dot   = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-label');
+  dot.className = 'sync-dot ' + state;
+  label.textContent = msg;
+  document.getElementById('url-status').textContent = msg;
+}
+
+function updateUI(data) {
+  const sel = data.selisih;
+  document.getElementById('total-in').textContent      = fmt(data.totalKredit);
+  document.getElementById('total-out').textContent     = fmt(data.totalDebit);
+  document.getElementById('total-selisih').textContent = fmt(Math.abs(sel));
+  document.getElementById('total-selisih').className   = 'sum-val ' + (sel >= 0 ? 'pos-sel' : 'neg-sel');
+  document.getElementById('total-balance').textContent = fmt(data.balance);
+  document.getElementById('balance-sub').textContent   =
+    'Base: ' + fmt(data.balance - sel) + ' + selisih bulan ini';
+  ['total-in','total-out','total-selisih','total-balance'].forEach(animateVal);
+
+  const logEl = document.getElementById('log-list');
+  document.getElementById('log-count').textContent = data.entries.length + ' entri';
+  if (!data.entries.length) {
+    logEl.innerHTML = '<div class="log-empty">Belum ada transaksi bulan ini di Sheets.</div>';
+    return;
+  }
+  logEl.innerHTML = data.entries.slice().reverse().map(e => {
+    const isIn   = e.kredit > 0;
+    const amount = isIn ? e.kredit : e.debit;
+    return `<div class="log-item">
+      <div class="log-left">
+        <span class="log-desc">${e.keterangan || '-'}</span>
+        <span class="log-meta">
+          <span class="dot ${isIn ? 'dot-in' : 'dot-out'}"></span>
+          ${e.tanggal}&nbsp;·&nbsp;${isIn ? 'Kredit' : 'Debit'}
+        </span>
+      </div>
+      <span class="log-amt ${isIn ? 'pos' : 'neg'}">${isIn ? '+' : '−'}${fmt(amount)}</span>
+    </div>`;
+  }).join('');
+}
+
+function fetchFromSheets() {
+  if (!scriptUrl) return;
+  setSyncState('loading', 'Sinkronisasi...');
+
+  const cb  = 'gsCb_' + Date.now();
+  const tag = document.createElement('script');
+
+  window[cb] = function(data) {
+    delete window[cb];
+    if (tag.parentNode) tag.parentNode.removeChild(tag);
+    updateUI(data);
+    setSyncState('ok', 'Tersinkron — ' + new Date().toLocaleTimeString('id-ID'));
+    document.getElementById('setup-banner').style.display = 'none';
+  };
+
+  tag.onerror = function() {
+    delete window[cb];
+    if (tag.parentNode) tag.parentNode.removeChild(tag);
+    setSyncState('err', 'Gagal sync — cek URL atau redeploy script');
+  };
+
+  tag.src = scriptUrl + '?callback=' + cb + '&t=' + Date.now();
+  document.body.appendChild(tag);
+}
+
+async function submitEntry() {
+  const date    = document.getElementById('inp-date').value;
+  const nominal = parseFloat(document.getElementById('inp-nominal').value);
+  const ket     = document.getElementById('inp-ket').value.trim();
+
+  if (!date || !nominal || nominal <= 0) {
+    showToast('Isi tanggal & nominal dulu!', 'error'); return;
+  }
+  if (!scriptUrl) {
+    showToast('Setup URL Sheets dulu ya!', 'error'); return;
+  }
+
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Mengirim...';
+  btn.disabled    = true;
+
+  try {
+    await fetch(scriptUrl, {
+      method:  'POST',
+      mode:    'no-cors',
+      headers: {'Content-Type':'application/json'},
+      body:    JSON.stringify({
+        tanggal:     date,
+        nominal:     nominal,
+        keterangan:  ket || '-',
+        tipe:        currentType
+      })
+    });
+    showToast('Terkirim! Memuat ulang data...', 'success');
+    // tunggu Sheets selesai nulis
+    await new Promise(r => setTimeout(r, 2000));
     fetchFromSheets();
+  } catch(err) {
+    showToast('Gagal kirim — cek koneksi internet', 'error');
   }
 
-  function saveScriptUrl() {
-    const val = document.getElementById('script-url-input').value.trim();
-    if (!val.startsWith('https://script.google.com')) {
-      document.getElementById('url-status').textContent = 'URL tidak valid';
-      return;
-    }
-    scriptUrl = val;
-    localStorage.setItem('money_script_url', val);
-    document.getElementById('url-status').textContent = 'Tersimpan! Mengambil data...';
-    document.getElementById('setup-banner').style.borderColor = 'rgba(61,214,140,0.25)';
-    fetchFromSheets();
-  }
-
-  function fmt(n) {
-    return new Intl.NumberFormat('id-ID', {minimumFractionDigits: 0, maximumFractionDigits: 2}).format(n);
-  }
-
-  function setType(t) {
-    currentType = t;
-    document.getElementById('btn-in').className = 'type-btn' + (t === 'in' ? ' active-in' : '');
-    document.getElementById('btn-out').className = 'type-btn' + (t === 'out' ? ' active-out' : '');
-    const btn = document.getElementById('submit-btn');
-    btn.className = 'submit-btn ' + t;
-    btn.textContent = t === 'in' ? 'Tambah Pemasukkan' : 'Tambah Pengeluaran';
-  }
-
-  function showToast(msg, type) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + type + ' show';
-    setTimeout(() => t.className = 'toast ' + type, 2800);
-  }
-
-  function animateVal(el) {
-    el.classList.remove('popped');
-    void el.offsetWidth;
-    el.classList.add('popped');
-  }
-
-  function updateUI(data) {
-    const inEl  = document.getElementById('total-in');
-    const outEl = document.getElementById('total-out');
-    const selEl = document.getElementById('total-selisih');
-    const balEl = document.getElementById('total-balance');
-    const balSub = document.querySelector('.balance-row div div:last-child');
-
-    const sel = data.selisih;
-    inEl.textContent  = fmt(data.totalKredit);
-    outEl.textContent = fmt(data.totalDebit);
-    selEl.textContent = fmt(Math.abs(sel));
-    selEl.className   = 'sum-val ' + (sel >= 0 ? 'pos-sel' : 'neg-sel');
-    balEl.textContent = fmt(data.balance);
-    if (balSub) balSub.textContent = fmt(data.balance - data.selisih) + ' + transaksi bulan ini';
-
-    animateVal(inEl); animateVal(outEl); animateVal(selEl); animateVal(balEl);
-
-    const logEl = document.getElementById('log-list');
-    document.getElementById('log-count').textContent = data.entries.length + ' entri';
-    if (!data.entries.length) {
-      logEl.innerHTML = '<div class="log-empty">Belum ada transaksi di Sheets bulan ini.</div>';
-      return;
-    }
-    logEl.innerHTML = data.entries.slice().reverse().slice(0, 30).map(e => {
-      const tipe = e.kredit > 0 ? 'in' : 'out';
-      const nominal = e.kredit > 0 ? e.kredit : e.debit;
-      return `
-        <div class="log-item">
-          <div class="log-left">
-            <span class="log-desc">${e.keterangan || '-'}</span>
-            <span class="log-meta">
-              <span class="log-type-dot ${tipe === 'in' ? 'dot-in' : 'dot-out'}"></span>
-              ${e.tanggal} &nbsp;·&nbsp; ${tipe === 'in' ? 'Kredit' : 'Debit'}
-            </span>
-          </div>
-          <span class="log-amt ${tipe === 'in' ? 'pos' : 'neg'}">
-            ${tipe === 'in' ? '+' : '−'}${fmt(nominal)}
-          </span>
-        </div>`;
-    }).join('');
-  }
-
-  async function fetchFromSheets() {
-    if (!scriptUrl) return;
-    try {
-      document.getElementById('url-status').textContent = 'Sinkronisasi...';
-      const res = await fetch(scriptUrl, { cache: 'no-store' });
-      const data = await res.json();
-      updateUI(data);
-      document.getElementById('url-status').textContent = 'Tersinkron ✓';
-      setTimeout(() => document.getElementById('url-status').textContent = '', 3000);
-    } catch(e) {
-      document.getElementById('url-status').textContent = 'Gagal sync';
-    }
-  }
-
-  async function submitEntry() {
-    const date    = document.getElementById('inp-date').value;
-    const nominal = parseFloat(document.getElementById('inp-nominal').value);
-    const ket     = document.getElementById('inp-ket').value.trim();
-
-    if (!date || !nominal || nominal <= 0) {
-      showToast('Isi tanggal & nominal dulu!', 'error');
-      return;
-    }
-
-    const btn = document.getElementById('submit-btn');
-    btn.textContent = 'Mengirim...';
-    btn.disabled = true;
-
-    const payload = { tanggal: date, nominal, keterangan: ket || '-', tipe: currentType };
-
-    if (scriptUrl) {
-      try {
-        await fetch(scriptUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        showToast('Terkirim! Menyinkronkan data...', 'success');
-        // tunggu sebentar baru fetch biar Sheets sempat update
-        await new Promise(r => setTimeout(r, 1500));
-        await fetchFromSheets();
-      } catch (e) {
-        showToast('Gagal kirim — cek URL atau koneksi', 'error');
-      }
-    } else {
-      await new Promise(r => setTimeout(r, 400));
-      showToast('Mode demo — setup URL Apps Script dulu ya!', 'error');
-    }
-
-    document.getElementById('inp-nominal').value = '';
-    document.getElementById('inp-ket').value = '';
-    btn.disabled = false;
-    setType(currentType);
-  }
+  document.getElementById('inp-nominal').value = '';
+  document.getElementById('inp-ket').value     = '';
+  btn.disabled    = false;
+  setType(currentType);
+}
 </script>
 </body>
 </html>
